@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb");
 const Round = require("../models/round");
-const { NotFoundError, ForbiddenError } = require("../utils/errors");
+const { NotFoundError, ForbiddenError, BadRequestError } = require("../utils/errors");
 const { use } = require("passport");
 
 const debug = require("debug")("app:roundServices");
@@ -8,8 +8,8 @@ const debug = require("debug")("app:roundServices");
 const create = async (input, id) => {
   debug({ input }, { id });
   const isAutheticated = await Round.find({ user: id });
-  if (isAutheticated == 0) {
-    throw new ForbiddenError("Forbidden");
+  if (isAutheticated === 0) {
+    throw new BadRequestError("Forbidden");
   }
   const round = new Round(input);
   await round.save();
@@ -31,10 +31,10 @@ const getAll = async (id) => {
 const getOne = async (id, userId) => {
   const ifAuthenticated = await Round.find({ user: userId });
 
-  if (ifAuthenticated.length == 0) {
+  if (ifAuthenticated.length === 0) {
     throw new ForbiddenError("Forbidden");
   }
-  const round = await Round.findById(id).populate("course");
+  const round = await Round.findById(id).populate("course").populate("user");
 
   if (!round) {
     throw new NotFoundError(`Round with id ${id} not found`);
@@ -45,9 +45,9 @@ const getOne = async (id, userId) => {
 const updateOne = async (id, input, userId) => {
   debug({input, userId})
 
-  const ifAuthenticated = await Round.find({ user: userId });
+  const ifAuthenticated = await Round.find({ user: userId }).populate("user");
 
-  if (ifAuthenticated.length == 0) {
+  if (ifAuthenticated.length === 0) {
     throw new ForbiddenError("Forbidden");
   }
 
@@ -55,7 +55,7 @@ const updateOne = async (id, input, userId) => {
   const round = await Round.findByIdAndUpdate(id, input, {
     new: true,
     runValidators: true,
-  }).populate("course");
+  }).populate("course").populate("user");
 
   if (!round) {
     throw new NotFoundError(`Round with id ${id} not found`);
@@ -67,11 +67,11 @@ const updateOne = async (id, input, userId) => {
 const deleteOne = async (id, userId) => {
   const ifAuthenticated = await Round.find({ user: userId });
 
-  if (ifAuthenticated.length == 0) {
+  if (ifAuthenticated.length === 0) {
     throw new ForbiddenError("Forbidden");
   }
 
-  const round = await Round.findByIdAndDelete(id).populate("course");
+  const round = await Round.findByIdAndDelete(id).populate("course").populate("user");
 
   if (!round) {
     throw new NotFoundError(`Round with id ${id} not found`);
