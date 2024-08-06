@@ -1,6 +1,10 @@
 const { ObjectId } = require("mongodb");
 const Round = require("../models/round");
-const { NotFoundError, ForbiddenError, BadRequestError } = require("../utils/errors");
+const {
+  NotFoundError,
+  ForbiddenError,
+  BadRequestError,
+} = require("../utils/errors");
 const { use } = require("passport");
 
 const debug = require("debug")("app:roundServices");
@@ -43,7 +47,7 @@ const getOne = async (id, userId) => {
   return round;
 };
 const updateOne = async (id, input, userId) => {
-  debug({input, userId})
+  debug({ input, userId });
 
   const ifAuthenticated = await Round.find({ user: userId }).populate("user");
 
@@ -51,15 +55,18 @@ const updateOne = async (id, input, userId) => {
     throw new ForbiddenError("Forbidden");
   }
 
-
   const round = await Round.findByIdAndUpdate(id, input, {
     new: true,
     runValidators: true,
-  }).populate("course").populate("user");
+  })
+    .populate("course")
+    .populate("user");
 
   if (!round) {
     throw new NotFoundError(`Round with id ${id} not found`);
   }
+
+  // if (!input.scores || !input.course) throw new BadRequestError("provide value");
 
   return round;
 };
@@ -71,7 +78,9 @@ const deleteOne = async (id, userId) => {
     throw new ForbiddenError("Forbidden");
   }
 
-  const round = await Round.findByIdAndDelete(id).populate("course").populate("user");
+  const round = await Round.findByIdAndDelete(id)
+    .populate("course")
+    .populate("user");
 
   if (!round) {
     throw new NotFoundError(`Round with id ${id} not found`);

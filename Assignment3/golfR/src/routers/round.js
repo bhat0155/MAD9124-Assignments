@@ -14,7 +14,7 @@ roundRouter.get("/", roundController.getAll);
 roundRouter.post("/", roundController.create);
 
 roundRouter.get("/:id", validateId, roundController.getOne);
-roundRouter.put("/:id", validateId, validateRound, roundController.updateOne);
+roundRouter.put("/:id", validateId, roundController.updateOne);
 roundRouter.patch("/:id", validateId, roundController.updateOne);
 roundRouter.delete("/:id", validateId, roundController.deleteOne);
 

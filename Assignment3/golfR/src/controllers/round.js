@@ -22,7 +22,7 @@ const create = requestHandler(async (req, res) => {
 const updateOne = requestHandler(async (req, res) => {
   debug("in controller",req.user._id)
 
-  const round = await roundService.updateOne(req.params.id, req.body, req.user._id);
+  const round = await roundService.updateOne(req.params.id, req.sanitizedBody, req.user._id);
   res.json({ data: round });
 });
 
